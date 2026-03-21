@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Social\SocialRedirect;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Socialite;
 
 class SocialController extends Controller
@@ -13,27 +15,12 @@ class SocialController extends Controller
     //
     public function redirect($social)
     {
-        return Socialite::driver($social)->redirect();
+        return Socialite::driver($social)->stateless()->redirect();
     }
 
-    public function callback($social)
+    public function callback($social, SocialRedirect $socialRedirect)
     {
-        $user = Socialite::driver($social)->user();
-        Log::info('社群登入回調', [
-            'social' => $social,
-            'user' => $user,
-        ]);
-
-        $authUser = User::updateOrCreate([
-            'provider_id' => $user->getId(),
-            'provider_name' => $social,
-        ], [
-            'name' => $user->getName(),
-            'email' => $user->getEmail(),
-            'password' => bcrypt(str_random(32)),
-        ]);
-
-        Auth::login($authUser, true);
+        $socialRedirect->handle($social);
 
         return redirect()->route('dashboard');
     }
