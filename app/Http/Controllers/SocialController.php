@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Social\SocialRedirect;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Laravel\Socialite\Socialite;
+use App\Actions\Social\SocialLogin;
+use Laravel\Socialite\Facades\Socialite;
 
 class SocialController extends Controller
 {
@@ -18,9 +13,9 @@ class SocialController extends Controller
         return Socialite::driver($social)->stateless()->redirect();
     }
 
-    public function callback($social, SocialRedirect $socialRedirect)
+    public function callback($social, SocialLogin $socialLogin)
     {
-        $socialRedirect->handle($social);
+        $socialLogin->handle($social);
 
         return redirect()->route('dashboard');
     }

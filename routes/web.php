@@ -14,7 +14,7 @@ Route::group([
     'as' => 'auth.',
 ], function () {
     Route::get('/redirect/{social}', [SocialController::class, 'redirect'])->name('redirect');
-    Route::get('/{social}/callback', [SocialController::class, 'callback'])->name('callback');
+    Route::get('/callback/{social}', [SocialController::class, 'callback'])->name('callback');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
