@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
+import { BookOpen, FolderGit2, KeyRound, LayoutGrid, Shield, ShieldCheck, Users } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -16,12 +16,36 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import rbac from '@/routes/rbac';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+];
+
+const rbacNavItems: NavItem[] = [
+    {
+        title: 'Access control',
+        href: rbac.index(),
+        icon: Shield,
+    },
+    {
+        title: 'Roles',
+        href: rbac.roles(),
+        icon: ShieldCheck,
+    },
+    {
+        title: 'Permissions',
+        href: rbac.permissions(),
+        icon: KeyRound,
+    },
+    {
+        title: 'User assignments',
+        href: rbac.userRoles(),
+        icon: Users,
     },
 ];
 
@@ -55,6 +79,7 @@ const footerNavItems: NavItem[] = [
 
         <SidebarContent>
             <NavMain :items="mainNavItems" />
+            <NavMain :items="rbacNavItems" label="RBAC" />
         </SidebarContent>
 
         <SidebarFooter>
