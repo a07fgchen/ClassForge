@@ -4,10 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import RbacPageShell from '@/pages/rbac/components/RbacPageShell.vue';
 import { rbacPaths, userRoleRecords } from '@/pages/rbac/fixtures';
 import type { BreadcrumbItem } from '@/types';
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'RBAC', href: rbacPaths.overview },
-    { title: 'User roles', href: rbacPaths.userRoles },
+    { title: 'User roles', href: RoleController.index() },
 ];
 
 const statusVariant = {

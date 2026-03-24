@@ -10,7 +10,7 @@ const permissionId = 4;
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'RBAC', href: RoleController.index() },
     { title: 'Permissions', href: PermissionController.index() },
-    { title: 'Edit', href: `${rbacPaths.permissions}/${permissionId}/edit` },
+    { title: 'Edit', href: PermissionController.edit(permissionId) },
 ];
 </script>
 
@@ -20,6 +20,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         title="Edit permission"
         description="Refine permission semantics without losing clarity about which roles inherit the capability."
     >
-        <PermissionForm mode="edit" :initial="editingPermissionForm" />
+        <PermissionForm mode="edit" :initial="{}" />
     </RbacPageShell>
 </template>

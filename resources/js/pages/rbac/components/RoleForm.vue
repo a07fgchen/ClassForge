@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { permissionOptions } from '@/pages/rbac/fixtures';
 import type { RoleFormState } from '@/pages/rbac/types';
-import { Form } from '@inertiajs/vue3';
-import { store } from '@/routes/rbac/roles';
+import { Form, useForm } from '@inertiajs/vue3';
 import { RouteFormDefinition } from '@/wayfinder';
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 
 type Props = {
     mode: 'create' | 'edit';
@@ -17,7 +17,7 @@ type Props = {
 
 const props = defineProps<Props>();
 
-const form = reactive<RoleFormState>({
+const form = useForm<RoleFormState>({
     ...props.initial,
     permissions: [...props.initial.permissions],
 });
@@ -39,7 +39,7 @@ const groupedPermissions = computed(() => {
 </script>
 
 <template>
-    <Form class="space-y-8" v-bind="props.action">
+    <Form class="space-y-8" :action="RoleController.store()">
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
             <div
                 class="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-xs"
@@ -48,7 +48,7 @@ const groupedPermissions = computed(() => {
                     <Label for="role-name">Role name</Label>
                     <Input
                         id="role-name"
-                        v-model="form.name"
+                        name="name"
                         placeholder="e.g. Instructor Operations"
                     />
                 </div>
@@ -57,7 +57,7 @@ const groupedPermissions = computed(() => {
                     <Label for="role-description">Description</Label>
                     <textarea
                         id="role-description"
-                        v-model="form.description"
+                        name="description"
                         class="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                         placeholder="Describe where this role is used and what level of trust it carries."
                     />
@@ -69,8 +69,8 @@ const groupedPermissions = computed(() => {
                     >
                         <div class="flex items-start gap-3">
                             <input
-                                v-model="form.scope"
                                 type="radio"
+                                name="group"
                                 value="tenant"
                                 class="mt-1"
                             />
@@ -88,8 +88,8 @@ const groupedPermissions = computed(() => {
                     >
                         <div class="flex items-start gap-3">
                             <input
-                                v-model="form.scope"
                                 type="radio"
+                                name="group"
                                 value="platform"
                                 class="mt-1"
                             />
@@ -108,7 +108,6 @@ const groupedPermissions = computed(() => {
                     class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4"
                 >
                     <input
-                        v-model="form.isSystem"
                         type="checkbox"
                         class="size-4"
                     />
@@ -189,7 +188,6 @@ const groupedPermissions = computed(() => {
                             class="flex gap-3 rounded-xl border border-border/50 bg-background p-4"
                         >
                             <input
-                                v-model="form.permissions"
                                 type="checkbox"
                                 :value="option.key"
                                 class="mt-1 size-4"

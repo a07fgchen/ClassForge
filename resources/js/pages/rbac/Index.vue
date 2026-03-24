@@ -32,13 +32,13 @@ const modules = [
     >
         <template #actions>
             <Link
-                :href="rbac.roles()"
+                :href="rbac.roles.index()"
                 class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
             >
                 Open roles
             </Link>
             <Link
-                :href="rbac.permissions()"
+                :href="rbac.permissions.index()"
                 class="inline-flex h-9 items-center rounded-md border px-4 text-sm font-medium"
             >
                 Open permissions

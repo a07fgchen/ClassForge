@@ -16,6 +16,9 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
+import PermissionController from '@/actions/App/Http/Controllers/PermissionController';
+import UserRoleController from '@/actions/App/Http/Controllers/UserRoleController';
 import rbac from '@/routes/rbac';
 
 const mainNavItems: NavItem[] = [
@@ -29,22 +32,22 @@ const mainNavItems: NavItem[] = [
 const rbacNavItems: NavItem[] = [
     {
         title: 'Access control',
-        href: rbac.index(),
+        href: rbac.index.url(),
         icon: Shield,
     },
     {
         title: 'Roles',
-        href: rbac.roles(),
+        href: RoleController.index.url(),
         icon: ShieldCheck,
     },
     {
         title: 'Permissions',
-        href: rbac.permissions(),
+        href: PermissionController.index.url(),
         icon: KeyRound,
     },
     {
         title: 'User assignments',
-        href: rbac.userRoles(),
+        href: UserRoleController.index.url(),
         icon: Users,
     },
 ];

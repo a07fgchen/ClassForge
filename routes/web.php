@@ -27,11 +27,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'as' => 'rbac.',
     ], function () {
         Route::inertia('/', 'rbac/Index')->name('index');
-        Route::get('roles', [RoleController::class, 'index'])->name('roles');
-        Route::get('roles/{roleId}', [RoleController::class, 'show'])->name('roles.show')->where('roleId', '[0-9]+');
-        Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create');
-        Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
-        Route::get('permissions', [PermissionController::class, 'index'])->name('permissions');
+        Route::resource('roles', RoleController::class);
+        Route::resource('permissions', PermissionController::class);
         Route::get('user-roles', [UserRoleController::class, 'index'])->name('user-roles');
     });
 });

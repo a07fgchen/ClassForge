@@ -13,7 +13,18 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
+            $table->string('name')->unique();
+            $table->unsignedBigInteger('module_id')->nullable()->comment('關聯模組ID');
+            $table->string('description')->nullable();
+            $table->enum('risk', ['low', 'medium', 'high'])->default('low');
             $table->string('slug')->unique()->comment('唯一識別碼');
+            $table->timestamps();
+        });
+
+        Schema::create('modules', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('description')->nullable();
             $table->timestamps();
         });
 

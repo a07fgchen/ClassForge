@@ -5,6 +5,7 @@ import RbacPageShell from '@/pages/rbac/components/RbacPageShell.vue';
 import { rbacPaths, roleRecords } from '@/pages/rbac/fixtures';
 import type { BreadcrumbItem } from '@/types';
 import rbac from '@/routes/rbac';
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 
 interface Role {
     id: number;
@@ -22,8 +23,8 @@ const props = defineProps<{
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'RBAC', href: rbacPaths.overview },
-    { title: 'Roles', href: rbac.roles() },
+    { title: 'RBAC', href: rbac.index() },
+    { title: 'Roles', href: RoleController.index() },
 ];
 </script>
 
@@ -35,7 +36,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     >
         <template #actions>
             <Link
-                :href="rbac.roles.create()"
+                :href="RoleController.create()"
                 class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
             >
                 New role
