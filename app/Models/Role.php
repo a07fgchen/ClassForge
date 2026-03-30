@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'slug'])]
+#[Fillable(['display_name', 'slug', 'description', 'scope', 'is_protected'])]
 class Role extends Model
 {
     public function permissions(): BelongsToMany

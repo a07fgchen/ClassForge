@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class RoleController extends Controller
 {
@@ -12,7 +15,11 @@ class RoleController extends Controller
     public function index()
     {
         //
-        return inertia('rbac/roles/Index');
+        $roles = Role::all();
+
+        return inertia('rbac/roles/Index', [
+            'roles' => $roles,
+        ]);
     }
 
     /**
@@ -21,7 +28,13 @@ class RoleController extends Controller
     public function create()
     {
         //
-        return inertia('rbac/roles/Create');
+        $permissions = Permission::with('module:id,name')
+            ->get()
+            ->groupBy('module.name');
+
+        return inertia('rbac/roles/Create', [
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
@@ -29,8 +42,24 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        return redirect()->route('rbac.index');
+        $validated = $request->validate([
+            'display_name' => 'required|string|max:255|ascii',
+            'description' => 'sometimes|nullable|string|max:255',
+            'scope' => 'required|in:1,2',
+            'is_protected' => 'sometimes|boolean',
+            'permissions' => 'required|array',
+            'permissions.*' => 'integer|exists:permissions,id',
+        ]);
+
+        $role = Role::create([
+            'display_name' => $validated['display_name'],
+            'description' => $validated['description'] ?? null,
+            'scope' => $validated['scope'],
+            'slug' => Str::slug($validated['display_name']),
+            'is_protected' => $validated['is_protected'] ?? 0,
+        ]);
+        $role->permissions()->sync($validated['permissions']);
+        return redirect()->route('rbac.roles.index');
     }
 
     /**
@@ -69,6 +98,6 @@ class RoleController extends Controller
     public function destroy(string $id)
     {
         //
-        return redirect()->route('rbac/roles.index');
+        return redirect()->route('rbac.roles.index');
     }
 }

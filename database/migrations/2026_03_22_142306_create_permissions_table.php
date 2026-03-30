@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->unsignedBigInteger('module_id')->nullable()->comment('關聯模組ID');
             $table->string('description')->nullable();
-            $table->enum('risk', ['low', 'medium', 'high'])->default('low');
             $table->string('slug')->unique()->comment('唯一識別碼');
             $table->timestamps();
         });
@@ -30,20 +29,24 @@ return new class extends Migration
 
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('display_name')->unique();
+            $table->string('description')->nullable();
             $table->string('slug')->unique()->comment('唯一識別碼');
+            $table->unsignedTinyInteger('scope')->default(1)->comment('角色作用域:0=system 1=tenant, 2=platform')->index();
+            $table->boolean('is_protected')->default(false)->comment('是否為系統保護角色');
             $table->timestamps();
         });
 
         Schema::create('role_user', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id');
+            $table->foreignId('role_id');
             $table->primary(['user_id', 'role_id']);
         });
 
         Schema::create('permission_role', function (Blueprint $table) {
-            $table->foreignId('permission_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('permission_id');
+            $table->foreignId('role_id');
+            $table->foreignUuid('tenant_id')->nullable()->comment('多租戶ID');
             $table->primary(['permission_id', 'role_id']);
         });
     }

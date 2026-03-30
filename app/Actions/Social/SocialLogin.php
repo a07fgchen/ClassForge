@@ -39,7 +39,7 @@ class SocialLogin
 
             $user = User::query()
                 ->firstOrCreate([
-                    'email' => $socialUser->getEmail()
+                    'email' => $socialUser->getEmail(),
                 ], [
                     'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Unknown',
                     'email' => $socialUser->getEmail(),
