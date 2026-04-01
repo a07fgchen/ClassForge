@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -74,7 +75,7 @@ class RoleController extends Controller
     {
         //
         return inertia('rbac/roles/Show', [
-            'role' => Role::with(['users','permissions'])->findOrFail($id),
+            'role' => Role::with(['users', 'permissions'])->findOrFail($id),
         ]);
     }
 
@@ -83,18 +84,33 @@ class RoleController extends Controller
      */
     public function edit(string $id)
     {
-        //
         return inertia('rbac/roles/Edit', [
-            'id' => $id,
+            'role' => Role::with('permissions')->findOrFail($id),
+            'permissions' => Permission::with('module:id,name')
+                ->get()
+                ->groupBy('module.name'),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(RoleRequest $request, string $id)
     {
-        //
+        $validated = $request->validated();
+
+        $role = Role::findOrFail($id);
+
+        $role->update([
+            'display_name' => $validated['display_name'],
+            'description' => $validated['description'],
+            'scope' => $validated['scope'],
+            'is_protected' => $validated['is_protected'],
+        ]);
+
+        $role->permissions()->sync($validated['permissions']);
+
+        return redirect()->route('rbac.roles.index');
     }
 
     /**

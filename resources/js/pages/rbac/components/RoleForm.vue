@@ -15,7 +15,7 @@ interface ScopeOption {
 
 type Props = {
     mode: 'create' | 'edit';
-    submit: RouteFormDefinition;
+    submit: RouteFormDefinition<'post' | 'put'>;
     permissions: Record<string, Permission[]>;
 };
 
@@ -60,7 +60,7 @@ const submitForm = (): void => {
             <div class="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
                 <div class="space-y-2">
                     <Label for="role-name">角色名稱</Label>
-                    <Input id="role-name" v-model="form.display_name" placeholder="e.g. Instructor Operations" />
+                    <Input id="role-name" v-model="form.display_name" placeholder="例如：課程講師管理員" />
                     <div class="text-red-500">
                         <span v-if="form.errors.display_name">
                             {{ form.errors.display_name }}
@@ -72,7 +72,7 @@ const submitForm = (): void => {
                     <Label for="role-description">描述</Label>
                     <textarea id="role-description" v-model="form.description"
                         class="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                        placeholder="Describe where this role is used and what level of trust it carries." />
+                        placeholder="描述此角色的使用場景與所需的信任等級。" />
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-2">
@@ -103,36 +103,36 @@ const submitForm = (): void => {
             </div>
 
             <aside class="rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
-                <h2 class="text-lg font-semibold tracking-tight">Review</h2>
+                <h2 class="text-lg font-semibold tracking-tight">審核摘要</h2>
                 <dl class="mt-4 space-y-4 text-sm">
                     <div class="flex items-center justify-between gap-4">
-                        <dt class="text-muted-foreground">Mode</dt>
+                        <dt class="text-muted-foreground">操作模式</dt>
                         <dd class="font-medium">
                             {{
-                                mode === 'create' ? 'Create role' : 'Edit role'
+                                mode === 'create' ? '新增角色' : '編輯角色'
                             }}
                         </dd>
                     </div>
                     <div class="flex items-center justify-between gap-4">
-                        <dt class="text-muted-foreground">Scope</dt>
+                        <dt class="text-muted-foreground">權限範圍</dt>
                         <dd class="font-medium">{{ selectedScopeOption.label }}</dd>
                     </div>
                     <div class="flex items-center justify-between gap-4">
-                        <dt class="text-muted-foreground">Permissions</dt>
+                        <dt class="text-muted-foreground">已選擇權限</dt>
                         <dd class="font-medium">
                             {{ selectedPermissionCount }}
                         </dd>
                     </div>
                     <div class="flex items-center justify-between gap-4">
-                        <dt class="text-muted-foreground">Protected</dt>
+                        <dt class="text-muted-foreground">系統保護</dt>
                         <dd class="font-medium">
-                            {{ form.is_protected ? 'Yes' : 'No' }}
+                            {{ form.is_protected ? '是' : '否' }}
                         </dd>
                     </div>
                 </dl>
 
                 <div class="mt-6 rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">
-                    The form submits directly to the configured role endpoint and keeps the permission matrix in sync with the review summary.
+                    表單會直接提交至對應的角色端點，並確保權限矩陣與審核摘要保持同步。
                 </div>
             </aside>
         </div>
@@ -177,7 +177,7 @@ const submitForm = (): void => {
 
         <div class="flex flex-wrap items-center justify-end gap-3">
             <Button type="submit" :disabled="form.processing">{{
-                mode === 'create' ? 'Create role' : 'Update role'
+                mode === 'create' ? '新增角色' : '更新角色'
             }}</Button>
         </div>
     </form>

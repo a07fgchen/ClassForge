@@ -68,3 +68,50 @@ test('storing a role redirects to roles index', function () {
     expect($role?->is_protected)->toBeFalse();
     expect($role?->permissions->pluck('id')->all())->toBe([$permission->id]);
 });
+
+test('updating a role redirects and syncs permissions', function () {
+    $user = User::factory()->create();
+
+    $oldPermission = Permission::query()->create([
+        'name' => 'View reports',
+        'slug' => 'reports.view',
+        'description' => 'View reports',
+    ]);
+
+    $newPermission = Permission::query()->create([
+        'name' => 'Manage reports',
+        'slug' => 'reports.manage',
+        'description' => 'Manage reports',
+    ]);
+
+    $role = Role::query()->create([
+        'display_name' => 'Report Viewer',
+        'slug' => 'report-viewer',
+        'description' => 'Can view reports only',
+        'scope' => 1,
+        'is_protected' => false,
+    ]);
+    $role->permissions()->sync([$oldPermission->id]);
+
+    actingAs($user);
+
+    $response = $this->put(route('rbac.roles.update', $role->id), [
+        'display_name' => 'Report Manager',
+        'description' => 'Can manage reports',
+        'scope' => 2,
+        'is_protected' => true,
+        'permissions' => [$newPermission->id],
+    ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('rbac.roles.index'));
+
+    $role->refresh();
+
+    expect($role->display_name)->toBe('Report Manager');
+    expect($role->description)->toBe('Can manage reports');
+    expect($role->scope)->toBe(2);
+    expect($role->is_protected)->toBeTrue();
+    expect($role->permissions()->pluck('permissions.id')->all())->toBe([$newPermission->id]);
+});
