@@ -43,14 +43,6 @@ export type UserRoleRecord = {
     roles: string[];
 };
 
-export type RoleFormState = {
-    name: string;
-    description: string;
-    scope: 'tenant' | 'platform';
-    isSystem: boolean;
-    permissions: string[];
-};
-
 export type PermissionFormState = {
     name: string;
     module: string;
@@ -58,3 +50,15 @@ export type PermissionFormState = {
     risk: PermissionRisk;
     assignedRoles: string[];
 };
+
+export type Permission {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    module_id: number;
+    module: {
+        id: number;
+        name: string;
+    };
+}

@@ -1,26 +1,17 @@
 <script setup lang="ts">
 import RbacPageShell from '@/pages/rbac/components/RbacPageShell.vue';
 import RoleForm from '@/pages/rbac/components/RoleForm.vue';
-import { initialRoleForm, rbacPaths } from '@/pages/rbac/fixtures';
 import type { BreadcrumbItem } from '@/types';
 import rbac from '@/routes/rbac';
 import { store } from '@/actions/App/Http/Controllers/RoleController';
+import { Permission } from '../types';
 
-interface Permission {
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-    module_id: number;
-    module: {
-        id: number;
-        name: string;
-    };
-}
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     permissions: Record<string, Permission[]>;
-}>();
+}>(), {
+    permissions: () => ({}) // 提供預設值
+});;
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'RBAC', href: rbac.index() },
@@ -33,6 +24,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 <template>
     <RbacPageShell :breadcrumbs="breadcrumbs" title="Create role"
         description="Compose a new role definition with scoped access and a permission matrix ready for future backend submission.">
-        <RoleForm mode="create" :initial="initialRoleForm" :action="store.form()" :permissions="props.permissions" />
+        <RoleForm mode="create" :submit="store.form()" :permissions="props.permissions" />
     </RbacPageShell>
 </template>

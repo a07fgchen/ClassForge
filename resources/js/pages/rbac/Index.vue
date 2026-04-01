@@ -85,9 +85,6 @@ const modules = [
                                 waiting for review.
                             </p>
                         </div>
-                        <Badge variant="secondary"
-                            >{{ roleRecords.length }} entries</Badge
-                        >
                     </div>
 
                     <div class="mt-5 space-y-4">

@@ -11,7 +11,7 @@ interface Role {
     id: number;
     name: string;
     description: string;
-    scope: string;
+    scope: number;
     status: 'draft' | 'custom' | 'managed';
     permissionCount: number;
     userCount: number;
@@ -70,16 +70,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         class="flex flex-wrap items-center gap-2"
                                     >
                                         <p class="font-medium">
-                                            {{ role.name }}
+                                            {{ role.display_name }}
                                         </p>
-                                        <Badge
-                                            :variant="
-                                                role.status === 'draft'
-                                                    ? 'outline'
-                                                    : 'secondary'
-                                            "
-                                            >{{ role.status }}</Badge
-                                        >
                                     </div>
                                     <p class="max-w-xl text-muted-foreground">
                                         {{ role.description }}
@@ -99,7 +91,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <td class="px-5 py-4">
                                 <div class="flex flex-wrap gap-2">
                                     <Link
-                                        :href="`${rbacPaths.roles}/${role.id}`"
+                                        :href="RoleController.show(role.id)"
                                         class="rounded-md border px-3 py-2 font-medium"
                                     >
                                         View

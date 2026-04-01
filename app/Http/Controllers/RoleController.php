@@ -51,6 +51,10 @@ class RoleController extends Controller
             'permissions.*' => 'integer|exists:permissions,id',
         ]);
 
+        if (Role::where('display_name', $validated['display_name'])->first()) {
+            return back()->withErrors(['display_name' => '顯示名稱重複'])->withInput();
+        }
+
         $role = Role::create([
             'display_name' => $validated['display_name'],
             'description' => $validated['description'] ?? null,
@@ -59,6 +63,7 @@ class RoleController extends Controller
             'is_protected' => $validated['is_protected'] ?? 0,
         ]);
         $role->permissions()->sync($validated['permissions']);
+
         return redirect()->route('rbac.roles.index');
     }
 
@@ -69,7 +74,7 @@ class RoleController extends Controller
     {
         //
         return inertia('rbac/roles/Show', [
-            'id' => $id,
+            'role' => Role::with(['users','permissions'])->findOrFail($id),
         ]);
     }
 

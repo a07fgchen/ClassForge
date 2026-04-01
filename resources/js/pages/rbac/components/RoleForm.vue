@@ -1,24 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { RoleFormState } from '@/pages/rbac/types';
-import { Form, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { RouteFormDefinition } from '@/wayfinder';
-import RoleController from '@/actions/App/Http/Controllers/RoleController';
-import { ref } from 'vue';
-
-interface Permission {
-    id: number;
-    name: string;
-    slug: string;
-    description: string | null;
-    module_id: number;
-    module: {
-        id: number;
-        name: string;
-    };
-}
+import { Permission } from '../types';
 
 interface ScopeOption {
     value: 1 | 2;
@@ -28,56 +15,72 @@ interface ScopeOption {
 
 type Props = {
     mode: 'create' | 'edit';
-    initial: RoleFormState;
-    action: RouteFormDefinition<'post' | 'put' | 'patch' | 'delete'>;
+    submit: RouteFormDefinition;
     permissions: Record<string, Permission[]>;
 };
 
 const scopeOptions: ScopeOption[] = [
     {
         value: 1,
-        label: 'Tenant scope',
-        description: 'Best for merchant-level operational roles.',
+        label: '租戶區塊',
+        description: '租戶角色只能被分配給同一租戶底下的使用者，適合大多數自定義角色的使用情境。',
     },
     {
         value: 2,
-        label: 'Platform scope',
-        description: 'Reserved for global operations and platform governance.',
+        label: '平台區塊',
+        description: '平台角色可以被分配給任何租戶底下的使用者，適合需要跨租戶管理權限的系統角色，但請謹慎使用以免造成權限濫用。',
     },
 ];
+
 const props = defineProps<Props>();
-const form = useForm<RoleFormState>({
-    ...props.initial,
-    permissions: [...props.initial.permissions],
+
+const form = useForm({
+    display_name: '',
+    description: '',
+    scope: 1,
+    is_protected: false,
+    permissions: [] as number[],
 });
+
+const selectedPermissionCount = computed(() => form.permissions.length);
+
+const selectedScopeOption = computed(() => {
+    return scopeOptions.find((option) => option.value === form.scope) ?? scopeOptions[0];
+});
+
+const submitForm = (): void => {
+    form.submit(props.submit.method, props.submit.action);
+};
+
 </script>
 
 <template>
-    <Form class="space-y-8" :action="RoleController.store()" #default="{ errors }">
+    <form class="space-y-8" @submit.prevent="submitForm">
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
             <div class="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
                 <div class="space-y-2">
-                    <Label for="role-name">Role name</Label>
-                    <Input id="role-name" name="display_name" placeholder="e.g. Instructor Operations" />
+                    <Label for="role-name">角色名稱</Label>
+                    <Input id="role-name" v-model="form.display_name" placeholder="e.g. Instructor Operations" />
                     <div class="text-red-500">
-                        <span v-if="errors['display_name']">
-                            {{ errors['display_name'] }}
+                        <span v-if="form.errors.display_name">
+                            {{ form.errors.display_name }}
                         </span>
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <Label for="role-description">Description</Label>
-                    <textarea id="role-description" name="description"
+                    <Label for="role-description">描述</Label>
+                    <textarea id="role-description" v-model="form.description"
                         class="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                         placeholder="Describe where this role is used and what level of trust it carries." />
                 </div>
 
                 <div class="grid gap-4 md:grid-cols-2">
-                    <label v-for="(option, index) in scopeOptions" :key="option.value"
-                        class="rounded-xl border border-border/60 bg-muted/30 p-4">
+                    <label v-for="option in scopeOptions" :key="option.value"
+                        class="rounded-xl border border-border/60 bg-muted/30 p-4"
+                        :class="form.scope === option.value ? 'border-primary/60 bg-primary/5' : ''">
                         <div class="flex items-start gap-3">
-                            <input type="radio" name="scope" :value="option.value" :checked="index === 0" class="mt-1" />
+                            <input v-model="form.scope" type="radio" name="scope" :value="option.value" class="mt-1" />
                             <div>
                                 <p class="font-medium">{{ option.label }}</p>
                                 <p class="mt-1 text-sm text-muted-foreground">
@@ -89,12 +92,11 @@ const form = useForm<RoleFormState>({
                 </div>
 
                 <label class="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-4">
-                    <input type="checkbox" name="is_protected" value="1" defaultChecked class="size-4" />
+                    <input v-model="form.is_protected" type="checkbox" name="is_protected" class="size-4" />
                     <div>
-                        <p class="font-medium">System protected role</p>
+                        <p class="font-medium">系統保護角色</p>
                         <p class="text-sm text-muted-foreground">
-                            System roles are visible but should require extra
-                            approval before deletion.
+                            系統角色可以被看到，但是刪除時需要有額外的審核。
                         </p>
                     </div>
                 </label>
@@ -113,25 +115,24 @@ const form = useForm<RoleFormState>({
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-muted-foreground">Scope</dt>
-                        <dd class="font-medium capitalize">{{ form.scope }}</dd>
+                        <dd class="font-medium">{{ selectedScopeOption.label }}</dd>
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-muted-foreground">Permissions</dt>
                         <dd class="font-medium">
-                            {{ form.permissions.length }}
+                            {{ selectedPermissionCount }}
                         </dd>
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <dt class="text-muted-foreground">Protected</dt>
                         <dd class="font-medium">
-                            {{ form.isSystem ? 'Yes' : 'No' }}
+                            {{ form.is_protected ? 'Yes' : 'No' }}
                         </dd>
                     </div>
                 </dl>
 
                 <div class="mt-6 rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">
-                    This form is currently UI-only. You can wire it to Inertia
-                    actions later without changing the layout.
+                    The form submits directly to the configured role endpoint and keeps the permission matrix in sync with the review summary.
                 </div>
             </aside>
         </div>
@@ -139,11 +140,10 @@ const form = useForm<RoleFormState>({
         <section class="space-y-5 rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
             <div class="space-y-1">
                 <h2 class="text-lg font-semibold tracking-tight">
-                    Permission matrix
+                    權限矩陣
                 </h2>
                 <p class="text-sm text-muted-foreground">
-                    Group permissions by business module so reviewers can audit
-                    access faster.
+                    系統會把權限依照業務模組（例如課程、使用者、帳務）分組
                 </p>
             </div>
 
@@ -154,7 +154,8 @@ const form = useForm<RoleFormState>({
                     <div class="mt-4 space-y-3">
                         <label v-for="permission in permissions" :key="permission.id"
                             class="flex gap-3 rounded-xl border border-border/50 bg-background p-4">
-                            <input type="checkbox" name="permissions[]" :value="permission.id" class="mt-1 size-4" />
+                            <input v-model="form.permissions" type="checkbox" name="permissions[]" :value="permission.id"
+                                class="mt-1 size-4" />
                             <div class="space-y-1">
                                 <p class="font-medium">{{ permission.name }}</p>
                                 <p class="text-sm text-muted-foreground">
@@ -168,13 +169,16 @@ const form = useForm<RoleFormState>({
                     </div>
                 </article>
             </div>
+
+            <p v-if="form.errors.permissions" class="text-sm text-red-500">
+                {{ form.errors.permissions }}
+            </p>
         </section>
 
         <div class="flex flex-wrap items-center justify-end gap-3">
-            <Button type="button" variant="outline">Save as draft</Button>
-            <Button type="submit">{{
+            <Button type="submit" :disabled="form.processing">{{
                 mode === 'create' ? 'Create role' : 'Update role'
-                }}</Button>
+            }}</Button>
         </div>
-    </Form>
+    </form>
 </template>

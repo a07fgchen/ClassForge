@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Badge } from '@/components/ui/badge';
 import RbacPageShell from '@/pages/rbac/components/RbacPageShell.vue';
 import {
     permissionOptions,
@@ -8,27 +7,42 @@ import {
     userRoleRecords,
 } from '@/pages/rbac/fixtures';
 import type { BreadcrumbItem } from '@/types';
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 
-const role = roleRecords[2];
-
-const permissions = permissionOptions.filter((permission) =>
-    role.permissions.includes(permission.key),
-);
-const members = userRoleRecords.filter((user) =>
-    user.roles.includes(role.name),
-);
+type Role = {
+    id: number;
+    display_name: string;
+    description: string;
+    scope: number;
+    is_protected: boolean;
+    updated_at: string;
+    permissions: {
+        id: number;
+        name: string;
+        description: string;
+        module: string;
+    }[];
+    users: {
+        id: number;
+        name: string;
+        email: string;
+    }[];
+};
+const props = defineProps<{
+    role: Role;
+}>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'RBAC', href: rbacPaths.overview },
     { title: 'Roles', href: rbacPaths.roles },
-    { title: role.name, href: `${rbacPaths.roles}/${role.id}` },
+    { title: props.role.display_name, href: RoleController.show(props.role.id) },
 ];
 </script>
 
 <template>
     <RbacPageShell
         :breadcrumbs="breadcrumbs"
-        :title="role.name"
+        :title="role.display_name"
         :description="role.description"
     >
         <div
@@ -37,28 +51,16 @@ const breadcrumbs: BreadcrumbItem[] = [
             <section
                 class="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-xs"
             >
-                <div class="flex flex-wrap items-center gap-2">
-                    <Badge
-                        :variant="
-                            role.status === 'custom' ? 'secondary' : 'outline'
-                        "
-                        >{{ role.status }}</Badge
-                    >
-                    <Badge variant="outline">{{ role.scope }}</Badge>
-                    <Badge variant="outline"
-                        >{{ role.permissionCount }} permissions</Badge
-                    >
-                </div>
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <article
                         class="rounded-2xl border border-border/50 bg-muted/20 p-4"
                     >
                         <p class="text-sm text-muted-foreground">
-                            Assigned members
+                            已分配成員
                         </p>
                         <p class="mt-2 text-2xl font-semibold">
-                            {{ members.length }}
+                            {{ role.users.length }}
                         </p>
                     </article>
                     <article
@@ -66,22 +68,22 @@ const breadcrumbs: BreadcrumbItem[] = [
                     >
                         <p class="text-sm text-muted-foreground">Updated at</p>
                         <p class="mt-2 text-2xl font-semibold">
-                            {{ role.updatedAt }}
+                            {{ role.updated_at }}
                         </p>
                     </article>
                 </div>
 
                 <div class="space-y-4">
                     <h2 class="text-lg font-semibold tracking-tight">
-                        Permission coverage
+                        權限範圍
                     </h2>
                     <div class="grid gap-4 lg:grid-cols-2">
                         <article
-                            v-for="permission in permissions"
-                            :key="permission.key"
+                            v-for="permission in role.permissions"
+                            :key="permission.id"
                             class="rounded-2xl border border-border/50 bg-muted/20 p-4"
                         >
-                            <p class="font-medium">{{ permission.label }}</p>
+                            <p class="font-medium">{{ permission.name }}</p>
                             <p class="mt-1 text-sm text-muted-foreground">
                                 {{ permission.description }}
                             </p>
@@ -100,37 +102,20 @@ const breadcrumbs: BreadcrumbItem[] = [
                     class="rounded-2xl border border-border/60 bg-background p-6 shadow-xs"
                 >
                     <h2 class="text-lg font-semibold tracking-tight">
-                        Members with this role
+                        擁有此角色的成員
                     </h2>
                     <div class="mt-4 space-y-3">
                         <article
-                            v-for="member in members"
-                            :key="member.id"
+                            v-for="user in role.users"
+                            :key="user.id"
                             class="rounded-xl border border-border/50 bg-muted/20 p-4"
                         >
-                            <p class="font-medium">{{ member.name }}</p>
+                            <p class="font-medium">{{ user.name }}</p>
                             <p class="text-sm text-muted-foreground">
-                                {{ member.email }}
-                            </p>
-                            <p
-                                class="mt-2 text-xs tracking-[0.18em] text-muted-foreground uppercase"
-                            >
-                                {{ member.department }}
+                                {{ user.email }}
                             </p>
                         </article>
                     </div>
-                </section>
-
-                <section
-                    class="rounded-2xl border border-amber-500/30 bg-amber-50/70 p-6 shadow-xs dark:bg-amber-950/20"
-                >
-                    <h2 class="text-lg font-semibold tracking-tight">
-                        Review note
-                    </h2>
-                    <p class="mt-2 text-sm text-muted-foreground">
-                        This role can mutate bookings and session capacity. Pair
-                        with audit log review before widening access.
-                    </p>
                 </section>
             </aside>
         </div>
