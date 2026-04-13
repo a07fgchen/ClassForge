@@ -1,23 +1,34 @@
 <script setup lang="ts">
 import RbacPageShell from '@/pages/rbac/components/RbacPageShell.vue';
 import PermissionForm from '@/pages/rbac/components/PermissionForm.vue';
-import { initialPermissionForm, rbacPaths } from '@/pages/rbac/fixtures';
+import { rbacPaths } from '@/pages/rbac/fixtures';
 import type { BreadcrumbItem } from '@/types';
 import PermissionController from '@/actions/App/Http/Controllers/PermissionController';
 
+const props = defineProps<{
+    modules: Array<{
+        id: number;
+        name: string;
+    }>;
+}>();
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'RBAC', href: rbacPaths.overview },
-    { title: 'Permissions', href: rbacPaths.permissions },
-    { title: 'Create', href: `${rbacPaths.permissions}/create` },
+    { title: '權限', href: rbacPaths.permissions },
+    { title: '建立', href: `${rbacPaths.permissions}/create` },
 ];
 </script>
 
 <template>
     <RbacPageShell
         :breadcrumbs="breadcrumbs"
-        title="Create permission"
-        description="Define a new permission key, classify its risk, and preview which roles should inherit it."
+        title="建立權限"
+        description="定義新的權限代碼，並補上用途說明。"
     >
-        <PermissionForm mode="create" :initial="PermissionController.store.form()" />
+        <PermissionForm
+            mode="create"
+            :modules="props.modules"
+            :action="PermissionController.store.form()"
+        />
     </RbacPageShell>
 </template>

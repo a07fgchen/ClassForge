@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Module;
 use App\Models\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PermissionController extends Controller
 {
@@ -29,8 +31,9 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        //
-        return inertia('rbac/permissions/Create');
+        return inertia('rbac/permissions/Create', [
+            'modules' => Module::query()->get(['id', 'name']),
+        ]);
     }
 
     /**
@@ -38,11 +41,11 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
-
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:permissions,name',
             'slug' => 'required|string|max:255|unique:permissions,slug',
             'description' => 'nullable|string|max:255',
+            'module_id' => 'required|integer|exists:modules,id',
             'assignedRoles' => 'array',
             'assignedRoles.*' => 'string|exists:roles,name',
         ]);
@@ -51,6 +54,7 @@ class PermissionController extends Controller
             'name' => $validated['name'],
             'slug' => $validated['slug'],
             'description' => $validated['description'] ?? null,
+            'module_id' => $validated['module_id'],
         ]);
 
         return redirect()->route('rbac.permissions.index');
@@ -63,7 +67,14 @@ class PermissionController extends Controller
     {
         //
         return inertia('rbac/permissions/Show', [
-            'permissionId' => $id,
+            'permission' => Permission::with('module:id,name')->findOrFail($id, [
+                'id',
+                'name',
+                'description',
+                'slug',
+                'module_id',
+                'updated_at',
+            ]),
         ]);
     }
 
@@ -74,6 +85,7 @@ class PermissionController extends Controller
     {
         return inertia('rbac/permissions/Edit', [
             'permission' => Permission::findOrFail($id),
+            'modules' => Module::query()->get(['id', 'name']),
         ]);
     }
 
@@ -82,7 +94,16 @@ class PermissionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('permissions', 'name')->ignore($id)],
+            'slug' => ['required', 'string', 'max:255', Rule::unique('permissions', 'slug')->ignore($id)],
+            'description' => 'nullable|string|max:255',
+            'module_id' => 'required|integer|exists:modules,id',
+        ]);
+
+        Permission::findOrFail($id)->update($validated);
+
         return redirect()->route('rbac.permissions.index');
     }
 

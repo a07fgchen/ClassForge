@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Badge } from '@/components/ui/badge';
 import RbacPageShell from '@/pages/rbac/components/RbacPageShell.vue';
 import { permissionRecords, rbacPaths } from '@/pages/rbac/fixtures';
 import type { BreadcrumbItem } from '@/types';
@@ -59,7 +58,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     {{ permission.description }}
                                 </p>
                             </td>
-                            <td class="px-5 py-4">{{ permission.module.name }}</td>
+                            <td class="px-5 py-4">{{ permission.module?.name }}</td>
                             <td class="px-5 py-4">
                                 {{ permission.roleCount }}
                             </td>

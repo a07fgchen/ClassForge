@@ -5,12 +5,13 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+
 use function Pest\Laravel\actingAs;
 
 test('create role page is displayed with grouped permissions', function () {
     $user = User::factory()->create();
 
-    $module = new Module();
+    $module = new Module;
     $module->name = 'Courses';
     $module->description = 'Course permissions';
     $module->save();

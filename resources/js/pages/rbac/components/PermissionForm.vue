@@ -1,57 +1,81 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { roleNameOptions } from '@/pages/rbac/fixtures';
-import { Form } from '@inertiajs/vue3';
-import PermissionController from '@/actions/App/Http/Controllers/PermissionController';
+import { useForm } from '@inertiajs/vue3';
+import type { RouteFormDefinition } from '@/wayfinder';
 
 type Props = {
     mode: 'create' | 'edit';
-    initial: object;
+    modules: Array<{
+        id: number;
+        name: string;
+    }>;
+    action: RouteFormDefinition<'post' | 'put'>;
 };
 
 const props = defineProps<Props>();
 
+const form = useForm({
+    name: '',
+    slug: '',
+    description: '',
+    module_id: '',
+});
+
 </script>
 
 <template>
-    <Form class="space-y-8" :action="PermissionController.store()">
+    <form class="space-y-8" @submit.prevent="form.submit(action)" >
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
             <div class="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
                 <div class="grid gap-6 md:grid-cols-2">
                     <div class="space-y-2">
                         <Label for="permission-name">權限名稱</Label>
-                        <Input id="permission-name" name="name" placeholder="" />
+                        <Input id="permission-name" v-model="form.name" placeholder="例如：退款審核" />
+                        <div v-if="form.errors.name" class="text-sm text-destructive">
+                            <span> {{ form.errors.name }} </span>
+                        </div>
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="permission-slug">權限唯一標示</Label>
-                        <Input id="permission-slug" name="slug" placeholder="e.g. enrollments.override" />
+                        <Label for="permission-slug">權限唯一識別碼</Label>
+                        <Input id="permission-slug" v-model="form.slug" placeholder="例如：enrollments.override" />
+                        <div v-if="form.errors.slug" class="text-sm text-destructive">
+                            <span> {{ form.errors.slug }} </span>
+                        </div>
                     </div>
 
                     <div class="space-y-2">
                         <Label for="permission-module">模組名稱</Label>
-                        <Input id="permission-module" name="module" placeholder="Identity" />
+                        <select id="permission-module" v-model="form.module_id"
+                            class="h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50">
+                            <option disabled value="">請選擇模組</option>
+                            <option v-for="module in props.modules" :key="module.id" :value="module.id">
+                                {{ module.name }}
+                            </option>
+
+                        </select>
+                        <div v-if="form.errors.module_id" class="text-sm text-destructive">
+                            <span> {{ form.errors.module_id }} </span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="space-y-2">
                     <Label for="permission-description">描述</Label>
-                    <textarea id="permission-description" name="description"
+                    <textarea id="permission-description" v-model="form.description"
                         class="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                         placeholder="權限描述" />
                 </div>
             </div>
 
-            <aside class="rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
+            <!-- <aside class="rounded-2xl border border-border/60 bg-background p-6 shadow-xs">
                 <h2 class="text-lg font-semibold tracking-tight">
-                    Assignment snapshot
+                    指派摘要
                 </h2>
                 <p class="mt-2 text-sm text-muted-foreground">
-                    Select which roles should inherit this permission by
-                    default.
+                    選擇哪些角色在預設情況下應繼承這個權限。
                 </p>
 
                 <div class="mt-4 space-y-3">
@@ -61,18 +85,17 @@ const props = defineProps<Props>();
                         <span class="text-sm font-medium">{{ roleName }}</span>
                     </label>
                 </div>
-            </aside>
+            </aside> -->
         </div>
 
         <div class="flex flex-wrap items-center justify-end gap-3">
-            <Button type="button" variant="outline">Preview impact</Button>
             <Button type="submit">
                 {{
                     mode === 'create'
-                        ? 'Create permission'
-                        : 'Update permission'
+                        ? '建立權限'
+                        : '更新權限'
                 }}
             </Button>
         </div>
-    </Form>
+    </form>
 </template>

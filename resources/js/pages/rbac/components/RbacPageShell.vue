@@ -27,7 +27,7 @@ defineProps<Props>();
                         <p
                             class="text-xs font-semibold tracking-[0.24em] text-cyan-700 uppercase dark:text-cyan-300"
                         >
-                            RBAC Workspace
+                            RBAC 工作區
                         </p>
                         <div class="space-y-1">
                             <h1
