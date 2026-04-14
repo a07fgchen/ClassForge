@@ -28,7 +28,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <PermissionForm
             mode="create"
             :modules="props.modules"
-            :action="PermissionController.store.form()"
+            :action="PermissionController.store()"
         />
     </RbacPageShell>
 </template>

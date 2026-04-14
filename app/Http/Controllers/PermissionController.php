@@ -32,7 +32,7 @@ class PermissionController extends Controller
     public function create()
     {
         return inertia('rbac/permissions/Create', [
-            'modules' => Module::query()->get(['id', 'name']),
+            'modules' => Module::get(['id', 'name']),
         ]);
     }
 
@@ -94,7 +94,6 @@ class PermissionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('permissions', 'name')->ignore($id)],
             'slug' => ['required', 'string', 'max:255', Rule::unique('permissions', 'slug')->ignore($id)],

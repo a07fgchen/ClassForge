@@ -2,8 +2,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RouteDefinition } from '@/wayfinder';
 import { useForm } from '@inertiajs/vue3';
-import type { RouteFormDefinition } from '@/wayfinder';
 
 type Props = {
     mode: 'create' | 'edit';
@@ -11,7 +11,7 @@ type Props = {
         id: number;
         name: string;
     }>;
-    action: RouteFormDefinition<'post' | 'put'>;
+    action: RouteDefinition<'post' | 'put' | 'patch'>;
 };
 
 const props = defineProps<Props>();

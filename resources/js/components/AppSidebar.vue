@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, KeyRound, LayoutGrid, Shield, ShieldCheck, Users } from 'lucide-vue-next';
+import { BookOpen, FolderGit2, KeyRound, LayoutGrid, Shield, ShieldCheck, UserPlus, Users } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -49,6 +49,11 @@ const rbacNavItems: NavItem[] = [
         title: 'User assignments',
         href: UserRoleController.index.url(),
         icon: Users,
+    },
+    {
+        title: 'Tenant invitations',
+        href: '/tenant/invitations',
+        icon: UserPlus,
     },
 ];
 

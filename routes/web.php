@@ -22,6 +22,10 @@ Route::group([
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+
+    Route::inertia('tenant/invitations', 'tenant/invitations/Index')
+        ->name('tenant.invitations.index');
+
     Route::group([
         'prefix' => 'rbac',
         'as' => 'rbac.',
